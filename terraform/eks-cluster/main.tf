@@ -49,7 +49,8 @@ module "eks_bottlerocket" {
 
   cluster_name    = "${var.cluster_prefix}-cluster"
   cluster_version = "1.30"
-
+  cluster_endpoint_private_access = true
+  cluster_endpoint_public_access  = true
   # EKS Addons
   cluster_addons = {
     coredns                = {}
@@ -64,7 +65,7 @@ module "eks_bottlerocket" {
   subnet_ids = module.vpc.private_subnets
 
   eks_managed_node_groups = {
-    example = {
+    gpu = {
       ami_type       = "BOTTLEROCKET_x86_64"
       instance_types = ["g6.xlarge"]
 
@@ -73,27 +74,11 @@ module "eks_bottlerocket" {
       # This value is ignored after the initial creation
       # https://github.com/bryantbiggs/eks-desired-size-hack
       desired_size = 1
+      iam_role_permissions_boundary = "arn:aws:iam::${local.account_id}:policy/eo_role_boundary"
 
-      # This is not required - demonstrates how to pass additional configuration
-      # Ref https://bottlerocket.dev/en/os/1.19.x/api/settings/
-      bootstrap_extra_args = <<-EOT
-        # The admin host container provides SSH access and runs with "superpowers".
-        # It is disabled by default, but can be disabled explicitly.
-        [settings.host-containers.admin]
-        enabled = false
 
-        # The control host container provides out-of-band access via SSM.
-        # It is enabled by default, and can be disabled if you do not expect to use SSM.
-        # This could leave you with no way to access the API and change settings on an existing node!
-        [settings.host-containers.control]
-        enabled = true
-
-        # extra args added
-        [settings.kernel]
-        lockdown = "integrity"
-      EOT
-    }
   }
 
   tags = local.tags
+}
 }
