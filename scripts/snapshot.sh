@@ -72,3 +72,4 @@ done
 echo " done!"
 echo "--------------------------------------------------"
 echo "Created snapshot in $AWS_REGION: $SNAPSHOT_ID"
+echo "Create env with the command: export SNAPSHOT_ID=$SNAPSHOT_ID"
