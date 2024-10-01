@@ -43,7 +43,7 @@ module "vpc" {
   tags = local.tags
 }
 
-module "eks_bottlerocket" {
+module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
@@ -74,11 +74,12 @@ module "eks_bottlerocket" {
       # This value is ignored after the initial creation
       # https://github.com/bryantbiggs/eks-desired-size-hack
       desired_size = 1
-      iam_role_permissions_boundary = "arn:aws:iam::${local.account_id}:policy/eo_role_boundary"
-
-
+    }
+  tags = local.tags
   }
 
-  tags = local.tags
-}
+  eks_managed_node_group_defaults = {
+    iam_role_permissions_boundary = "arn:aws:iam::${local.account_id}:policy/eo_role_boundary"
+  }
+
 }
