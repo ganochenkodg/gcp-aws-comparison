@@ -47,6 +47,8 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
+  enable_cluster_creator_admin_permissions = true
+
   cluster_name    = "${var.cluster_prefix}-cluster"
   cluster_version = "1.30"
   cluster_endpoint_private_access = true
@@ -83,3 +85,9 @@ module "eks" {
   }
 
 }
+
+output "connection_command" {
+  value       = "aws eks --region ${var.region} update-kubeconfig --name ${var.cluster_prefix}-cluster"
+  description = "EKS connection command"
+}
+
