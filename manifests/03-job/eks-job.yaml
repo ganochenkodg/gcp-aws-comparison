@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fetch-model-scripts
+data:
+  fetch_model.sh: |-
+    #!/usr/bin/bash -x
+    apt-get update -y && \
+      apt-get install -y --no-install-recommends \
+      git git-lfs rsync
+    git lfs install
+    cd /tmp
+    echo "Saving model into /tmp..."
+    time git clone -c http.sslverify=false --depth=1 https://dganochenko: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@huggingface.co/${MODEL_PATH}; echo "cloned"
+    echo "Copying to the bucket"
+    time rsync --inplace --info=progress2 --exclude .git -a /tmp/gemma-2b/ /data/gemma-2b/ || exit 0
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-loader-2b
+  labels:
+    app: data-loader-2b
+spec:
+  ttlSecondsAfterFinished: 120
+  template:
+    metadata:
+      labels:
+        app: data-loader-2b
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: s3-sa
+      containers:
+      - name: job
+        image: debian:bookworm-slim
+        command:
+        - /scripts/fetch_model.sh
+        env:
+        - name: MODEL_PATH
+          value: "google/gemma-2b"
+        - name: AWS_DEFAULT_REGION
+          value: us-east-1
+        volumeMounts:
+        - mountPath: "/scripts/"
+          name: scripts-volume
+          readOnly: true
+        - name: s3-storage
+          mountPath: /data
+      volumes:
+      - name: scripts-volume
+        configMap:
+          defaultMode: 0700
+          name: fetch-model-scripts
+      - name: s3-storage
+        persistentVolumeClaim:
+          claimName: s3-claim
+

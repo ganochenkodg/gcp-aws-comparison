@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-gemma-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gemma-server
+  template:
+    metadata:
+      annotations:
+        gke-gcsfuse/volumes: "true"
+      labels:
+        app: gemma-server
+        ai.gke.io/model: gemma-2-2b
+        ai.gke.io/inference-server: vllm
+    spec:
+      serviceAccountName: s3-sa
+      containers:
+      - name: inference-server
+        image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20240220_0936_RC01
+        readinessProbe:
+          httpGet:
+            path: http://localhost/health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: "2"
+            memory: "7Gi"
+            ephemeral-storage: "10Gi"
+            nvidia.com/gpu: 1
+          limits:
+            cpu: "2"
+            memory: "7Gi"
+            ephemeral-storage: "10Gi"
+            nvidia.com/gpu: 1
+        command: ["python3", "-m", "vllm.entrypoints.api_server"]
+        args:
+        - --model=$(MODEL_ID)
+        - --tensor-parallel-size=1
+        env:
+        - name: MODEL_ID
+          value: /data/gemma-2b
+        - name: PORT
+          value: "8000"
+        - name: AWS_DEFAULT_REGION
+          value: us-east-1
+        volumeMounts:
+        - name: s3-storage
+          mountPath: /data
+      volumes:
+      - name: s3-storage
+        persistentVolumeClaim:
+          claimName: s3-claim
+
+
