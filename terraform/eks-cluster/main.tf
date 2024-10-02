@@ -87,7 +87,7 @@ module "eks" {
         device_name = "/dev/xvdb"
         ebs = {
           volume_type = "gp3"
-          snapshot_id = "snap-0925d4e93597bc482"
+          snapshot_id = var.snapshot_id
           volume_size = 50
           throughput  = 200
           encrypted   = false
