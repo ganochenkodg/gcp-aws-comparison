@@ -1,34 +1,3 @@
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: s3-pv
-spec:
-  capacity:
-    storage: 50Gi
-  accessModes:
-    - ReadWriteMany
-  mountOptions:
-    - allow-delete
-    - region us-east-1
-    - prefix some-s3-prefix/
-  csi:
-    driver: s3.csi.aws.com 
-    volumeHandle: s3-csi-driver-volume
-    volumeAttributes:
-      bucketName: test-bucket-666666
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: s3-claim
-spec:
-  accessModes:
-    - ReadWriteMany 
-  storageClassName: "" 
-  resources:
-    requests:
-      storage: 50Gi 
-  volumeName: s3-pv
 ---
 apiVersion: v1
 kind: Pod
@@ -44,7 +13,43 @@ spec:
       volumeMounts:
         - name: persistent-storage
           mountPath: /data
+      env:
+        - name: AWS_DEFAULT_REGION
+          value: us-east-1
   volumes:
     - name: persistent-storage
       persistentVolumeClaim:
         claimName: s3-claim
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: s3-pv
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteMany
+  mountOptions:
+    - allow-delete
+    - region us-east-1
+  csi:
+    driver: s3.csi.aws.com
+    volumeHandle: s3-csi-driver-volume
+    volumeAttributes:
+      bucketName: test-bucket-666666
+      authenticationSource: pod
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: s3-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 50Gi
+  volumeName: s3-pv
+
