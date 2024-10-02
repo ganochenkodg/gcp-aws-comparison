@@ -68,7 +68,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     gpu = {
-      ami_type       = "BOTTLEROCKET_x86_64"
+      ami_type       = "BOTTLEROCKET_x86_64_NVIDIA"
       instance_types = ["g6.xlarge"]
 
       min_size = 1
@@ -82,6 +82,18 @@ module "eks" {
 
   eks_managed_node_group_defaults = {
     iam_role_permissions_boundary = "arn:aws:iam::${local.account_id}:policy/eo_role_boundary"
+    block_device_mappings = {
+      xvdb = {
+        device_name = "/dev/xvdb"
+        ebs = {
+          volume_type = "gp3"
+          snapshot_id = "snap-0925d4e93597bc482"
+          volume_size = 50
+          throughput  = 200
+          encrypted   = false
+        }
+      }
+    }
   }
 
 }

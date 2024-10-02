@@ -7,3 +7,8 @@ variable "cluster_prefix" {
   description = "The prefix for all cluster resources"
 }
 
+#variable "snapshot_id" {
+#  description = "Data volume snapshot id"
+#}
+
+
