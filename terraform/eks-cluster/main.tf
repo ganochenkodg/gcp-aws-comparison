@@ -98,6 +98,41 @@ module "eks" {
 
 }
 
+module "eks_irsa_role" {
+  source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+
+  role_name = "mountpoint-s3-access"
+
+  role_policy_arns = {
+    policy = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  }
+  role_permissions_boundary_arn = "arn:aws:iam::${local.account_id}:policy/eo_role_boundary"
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["default:s3-sa"]
+    }
+  }
+}
+
+module "mountpoint_s3_csi_irsa_role" {
+  source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+
+  role_name                       = "mountpoint-s3-csi"
+  attach_mountpoint_s3_csi_policy = true
+  mountpoint_s3_csi_bucket_arns   = ["arn:aws:s3:::mountpoint-s3-csi-bucket"]
+  mountpoint_s3_csi_path_arns     = ["arn:aws:s3:::mountpoint-s3-csi-bucket/example/*"]
+  role_permissions_boundary_arn = "arn:aws:iam::${local.account_id}:policy/eo_role_boundary"
+
+  oidc_providers = {
+    ex = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:s3-csi-driver-sa"]
+    }
+  }
+}
+
 output "connection_command" {
   value       = "aws eks --region ${var.region} update-kubeconfig --name ${var.cluster_prefix}-cluster"
   description = "EKS connection command"
