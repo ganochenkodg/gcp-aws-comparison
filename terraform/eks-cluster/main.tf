@@ -116,6 +116,11 @@ module "eks_irsa_role" {
   }
 }
 
+module "bucket" {
+  source         = "../modules/s3-bucket"
+  region         = var.region
+}
+
 output "connection_command" {
   value       = "aws eks --region ${var.region} update-kubeconfig --name ${var.cluster_prefix}-cluster"
   description = "EKS connection command"
