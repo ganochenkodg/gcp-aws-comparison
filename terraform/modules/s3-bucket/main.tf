@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "${var.region}"
+  region = var.region
 
   # Make it faster by skipping something
   skip_metadata_api_check     = true
@@ -10,7 +10,7 @@ provider "aws" {
 module "s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket = "${var.cluster_prefix}-s3-bucket"
+  bucket = "${var.cluster_prefix}-s3-model-bucket"
   acl    = "private"
 
   control_object_ownership = true
