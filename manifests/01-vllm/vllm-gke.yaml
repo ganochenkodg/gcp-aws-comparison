@@ -46,14 +46,32 @@ spec:
           value: /data/gemma-2b
         - name: PORT
           value: "8000"
-        - name: AWS_DEFAULT_REGION
-          value: us-east-1
         volumeMounts:
-        - name: s3-storage
+        - name: gcs-fuse-csi-ephemeral
           mountPath: /data
+          readOnly: false
       volumes:
-      - name: s3-storage
-        persistentVolumeClaim:
-          claimName: s3-claim
-
+      - name: gcs-fuse-csi-ephemeral
+        csi:
+          driver: gcsfuse.csi.storage.gke.io
+          readOnly: false
+          volumeAttributes:
+            bucketName: or2-msq-go2-gkes-t1iylu-model-bucket
+            mountOptions: "implicit-dirs,metadata-cache:ttl-secs:-1,file-cache:max-size-mb:-1,file-cache:cache-file-for-range-read:true,file-cache:enable-parallel-downloads:true"
+            gcsfuseLoggingSeverity: warning
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-service
+spec:
+  selector:
+    app: gemma-server
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
 

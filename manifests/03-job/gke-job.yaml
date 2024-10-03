@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fetch-model-scripts
+data:
+  fetch_model.sh: |-
+    #!/usr/bin/bash -x
+    apt-get update -y && \
+      apt-get install -y --no-install-recommends \
+      git git-lfs rsync
+    git lfs install
+    cd /tmp
+    echo "Saving model into /tmp..."
+    time git clone -c http.sslverify=false --depth=1 https://dganochenko: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@huggingface.co/${MODEL_PATH}; echo "cloned"
+    echo "Copying to the bucket"
+    time gsutil -q -m cp -r /tmp/gemma-2b/ gs://or2-msq-go2-gkes-t1iylu-model-bucket/ || exit 0
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-loader-2b
+  labels:
+    app: data-loader-2b
+spec:
+  ttlSecondsAfterFinished: 120
+  template:
+    metadata:
+      labels:
+        app: data-loader-2b
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: s3-sa
+      containers:
+      - name: job
+        image: gcr.io/google.com/cloudsdktool/google-cloud-cli:slim
+        command:
+        - /scripts/fetch_model.sh
+        resources:
+          requests:
+            cpu: "1"
+            memory: "12Gi"
+          limits:
+            cpu: "2"
+            memory: "12Gi"
+        env:
+        - name: MODEL_PATH
+          value: "google/gemma-2b"
+        volumeMounts:
+        - mountPath: "/scripts/"
+          name: scripts-volume
+          readOnly: true
+      volumes:
+      - name: scripts-volume
+        configMap:
+          defaultMode: 0700
+          name: fetch-model-scripts
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Equal"
+        value: "present"
+        effect: NoSchedule
+      - key: "app.stateful/component"
+        operator: "Equal"
+        value: "model-train"
+        effect: NoSchedule
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
