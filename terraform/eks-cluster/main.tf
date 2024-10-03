@@ -119,6 +119,7 @@ module "eks_irsa_role" {
 module "bucket" {
   source         = "../modules/s3-bucket"
   region         = var.region
+  cluster_prefix = var.cluster_prefix
 }
 
 output "connection_command" {
