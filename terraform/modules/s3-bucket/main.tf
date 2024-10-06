@@ -7,10 +7,18 @@ provider "aws" {
   skip_credentials_validation = true
 }
 
+data "aws_caller_identity" "current" {}
+
+data "aws_availability_zones" "available" {}
+
+locals {
+  account_id = data.aws_caller_identity.current.account_id
+}
+
 module "s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket = "${var.cluster_prefix}-s3-model-bucket"
+  bucket = "${var.cluster_prefix}-${local.account_id}-model-bucket"
   acl    = "private"
 
   control_object_ownership = true

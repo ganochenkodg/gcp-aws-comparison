@@ -11,9 +11,9 @@ data:
     git lfs install
     cd /tmp
     echo "Saving model into /tmp..."
-    time git clone -c http.sslverify=false --depth=1 https://dganochenko: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@huggingface.co/${MODEL_PATH}; echo "cloned"
+    time git clone -c http.sslverify=false --depth=1 https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/${MODEL_PATH}; echo "cloned"
     echo "Copying to the bucket"
-    time gsutil -q -m cp -r /tmp/gemma-2b/ gs://or2-msq-go2-gkes-t1iylu-model-bucket/ || exit 0
+    time gsutil -q -m cp -r /tmp/gemma-2b/ gs://${BUCKET_NAME}/ || exit 0
 ---
 apiVersion: batch/v1
 kind: Job
@@ -45,6 +45,18 @@ spec:
         env:
         - name: MODEL_PATH
           value: "google/gemma-2b"
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-secret
+              key: hf_token
+        - name: HF_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: hf-secret
+              key: hf_username
+        - name: BUCKET_NAME
+          value: <CLUSTER_PREFIX>-<AWS_ACCOUNT_ID>-model-bucket
         volumeMounts:
         - mountPath: "/scripts/"
           name: scripts-volume

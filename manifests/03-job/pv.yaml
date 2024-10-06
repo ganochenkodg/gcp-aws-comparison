@@ -15,7 +15,7 @@ spec:
     driver: s3.csi.aws.com
     volumeHandle: s3-csi-driver-volume
     volumeAttributes:
-      bucketName: llm-s3-model-bucket
+      bucketName: <CLUSTER_PREFIX>-<AWS_ACCOUNT_ID>-model-bucket
       authenticationSource: pod
 ---
 apiVersion: v1

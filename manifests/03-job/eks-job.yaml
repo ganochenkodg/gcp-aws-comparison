@@ -11,7 +11,7 @@ data:
     git lfs install
     cd /tmp
     echo "Saving model into /tmp..."
-    time git clone -c http.sslverify=false --depth=1 https://dganochenko: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@huggingface.co/${MODEL_PATH}; echo "cloned"
+    time git clone -c http.sslverify=false --depth=1 https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/${MODEL_PATH}; echo "cloned"
     echo "Copying to the bucket"
     time rsync --inplace --info=progress2 --exclude .git -a /tmp/gemma-2b/ /data/gemma-2b/ || exit 0
 ---
@@ -40,6 +40,16 @@ spec:
           value: "google/gemma-2b"
         - name: AWS_DEFAULT_REGION
           value: us-east-1
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-secret
+              key: hf_token
+        - name: HF_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: hf-secret
+              key: hf_username
         volumeMounts:
         - mountPath: "/scripts/"
           name: scripts-volume
