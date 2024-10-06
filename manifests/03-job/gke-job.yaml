@@ -56,7 +56,7 @@ spec:
               name: hf-secret
               key: hf_username
         - name: BUCKET_NAME
-          value: <CLUSTER_PREFIX>-<AWS_ACCOUNT_ID>-model-bucket
+          value: <CLUSTER_PREFIX>-<PROJECT_ID>-model-bucket
         volumeMounts:
         - mountPath: "/scripts/"
           name: scripts-volume
