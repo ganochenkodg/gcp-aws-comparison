@@ -18,10 +18,10 @@ module "training_cluster" {
   monitoring_enabled_components = ["SYSTEM_COMPONENTS"]
   enable_cost_allocation   = true
   deletion_protection      = false
-  initial_node_count       = 1
-  stateful_ha              = true
+  initial_node_count       = 0
+  stateful_ha              = false
   grant_registry_access    = true
-  kubernetes_version       = "latest"
+  kubernetes_version       = "1.30"
   release_channel          = "RAPID"
 
   cluster_resource_labels = {
@@ -32,9 +32,6 @@ module "training_cluster" {
   monitoring_enable_managed_prometheus = true
   gke_backup_agent_config = true
  
-  node_pools          = var.node_pools
-  node_pools_labels   = var.node_pools_labels
-  node_pools_taints   = var.node_pools_taints
   gce_pd_csi_driver   = true
   gcs_fuse_csi_driver = true
 }

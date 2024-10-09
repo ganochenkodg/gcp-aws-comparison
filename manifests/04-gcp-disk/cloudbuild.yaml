@@ -5,7 +5,7 @@ steps:
   args:
     - "-c"
     - |
-      gcloud storage buckets list | grep "${_BUCKET_NAME}" || gcloud storage buckets create ${_BUCKET_NAME} --location=${_REGION} --uniform-bucket-level-access
+      gcloud storage buckets list | grep "$PROJECT_ID-temp-bucket" || gcloud storage buckets create gs://$PROJECT_ID-temp-bucket --location=${_REGION} --uniform-bucket-level-access
 
   # Build step 2 where the repo with gke-disk-image-builder is cloned
 - name: 'gcr.io/cloud-builders/git'
@@ -19,9 +19,9 @@ steps:
     - 'run'
     - './cli'
     - --project-name=$PROJECT_ID
-    - --image-name=${_DISK_IMAGE}
+    - --image-name=gemma-2b-disk
     - --zone=${_ZONE}
-    - --gcs-path=${_BUCKET_NAME}
+    - --gcs-path=gs://$PROJECT_ID-temp-bucket
     - --disk-size-gb=50
     - --timeout=120m
     - --container-image=${_CONTAINER_IMAGE}

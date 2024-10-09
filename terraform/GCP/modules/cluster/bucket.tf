@@ -2,14 +2,14 @@ module "cloud-storage" {
   source        = "terraform-google-modules/cloud-storage/google//modules/simple_bucket"
   version       = "~> 5.0"
 
-  name          = "${var.project_id}-${var.cluster_prefix}-model-train"
+  name          = "${var.cluster_prefix}-${var.project_id}-model-bucket"
   project_id    = var.project_id
   location      = var.region
   force_destroy = true
 }
 
 locals {
-  workload_principal = "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${var.project_id}.svc.id.goog/subject/ns/default/sa/bucket-access"
+  workload_principal = "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${var.project_id}.svc.id.goog/subject/ns/default/sa/s3-sa"
 }
 
 
