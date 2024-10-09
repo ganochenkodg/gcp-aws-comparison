@@ -29,24 +29,6 @@ module "gcp-network" {
   }
 }
 
-module "firewall_rules" {
-  source       = "terraform-google-modules/network/google//modules/firewall-rules"
-  version = "~> 8.0"
-  project_id   = var.project_id
-  network_name = module.gcp-network.network_name
-
-  ingress_rules = [{
-    name                    = "allow-ssh-for-cloudbuild"
-    description             = "open webhook port"
-    source_ranges           = ["35.235.240.0/20"]
-    allow = [{
-      protocol = "tcp"
-      ports    = ["22"]
-    }]
-    deny = []
-  }]
-}
-
 output "network_name" {
   value = module.gcp-network.network_name
 }
