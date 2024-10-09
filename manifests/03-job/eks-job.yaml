@@ -4,7 +4,7 @@ metadata:
   name: fetch-model-scripts
 data:
   fetch_model.sh: |-
-    #!/usr/bin/bash -x
+    #!/usr/bin/bash
     apt-get update -y && \
       apt-get install -y --no-install-recommends \
       git git-lfs rsync
