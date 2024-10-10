@@ -16,7 +16,7 @@ spec:
         ai.gke.io/model: gemma-2b
         ai.gke.io/inference-server: vllm
     spec:
-      serviceAccountName: s3-sa
+      serviceAccountName: bucket-access-sa
       containers:
       - name: inference-server
         image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20240220_0936_RC01

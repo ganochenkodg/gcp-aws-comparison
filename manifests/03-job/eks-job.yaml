@@ -29,7 +29,7 @@ spec:
         app: data-loader-2b
     spec:
       restartPolicy: OnFailure
-      serviceAccountName: s3-sa
+      serviceAccountName: bucket-access-sa
       containers:
       - name: job
         image: debian:bookworm-slim

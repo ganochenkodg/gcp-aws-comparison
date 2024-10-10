@@ -65,10 +65,21 @@ module "eks" {
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
+
   eks_managed_node_groups = {
-    default = {
+      default = {
       ami_type       = "BOTTLEROCKET_x86_64"
       instance_types = ["t3.large"]
+
+      min_size = 1
+      max_size = 3
+      # This value is ignored after the initial creation
+      # https://github.com/bryantbiggs/eks-desired-size-hack
+      desired_size = 1
+    }
+    gpu = {
+      ami_type       = "BOTTLEROCKET_x86_64_NVIDIA"
+      instance_types = ["g6.xlarge"]
 
       min_size = 1
       max_size = 3
@@ -93,10 +104,8 @@ module "eks" {
       }
     }
   }
-
   tags = local.tags
 }
-
 
 module "eks_irsa_role" {
   source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"

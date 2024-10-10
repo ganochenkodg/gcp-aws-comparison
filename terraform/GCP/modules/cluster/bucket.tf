@@ -9,7 +9,7 @@ module "cloud-storage" {
 }
 
 locals {
-  workload_principal = "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${var.project_id}.svc.id.goog/subject/ns/default/sa/s3-sa"
+  workload_principal = "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${var.project_id}.svc.id.goog/subject/ns/default/sa/bucket-access-sa"
 }
 
 
