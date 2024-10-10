@@ -61,7 +61,9 @@ module "eks" {
     vpc-cni                = {}
     aws-mountpoint-s3-csi-driver = {}
   }
+  #EPAM ONLY. PLEASE COMMENT THESE LINES
   iam_role_permissions_boundary = "arn:aws:iam::${local.account_id}:policy/eo_role_boundary"
+  #END OF THE SECTION
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -72,14 +74,24 @@ module "eks" {
 
       min_size = 1
       max_size = 3
-      # This value is ignored after the initial creation
-      # https://github.com/bryantbiggs/eks-desired-size-hack
       desired_size = 1
     }
+    gpu = {
+      ami_type       = "BOTTLEROCKET_x86_64_NVIDIA"
+      instance_types = ["g6.xlarge"]
+
+      min_size  = 0
+      max_size = 3
+      desired_size = 0
+    }
+
   }
 
   eks_managed_node_group_defaults = {
+    #EPAM ONLY. PLEASE COMMENT THESE LINES
     iam_role_permissions_boundary = "arn:aws:iam::${local.account_id}:policy/eo_role_boundary"
+    #END OF THE SECTION
+
     block_device_mappings = {
       xvdb = {
         device_name = "/dev/xvdb"
@@ -106,7 +118,9 @@ module "eks_irsa_role" {
   role_policy_arns = {
     policy = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
   }
+  #EPAM ONLY. PLEASE COMMENT THESE LINES
   role_permissions_boundary_arn = "arn:aws:iam::${local.account_id}:policy/eo_role_boundary"
+  #END OF THE SECTION
 
   oidc_providers = {
     main = {

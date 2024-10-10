@@ -34,11 +34,11 @@ module "bottlerocket_ec2" {
   create_iam_instance_profile = true
   iam_role_policies = {
     AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:poliouncy/AmazonSSMManagedInstanceCore"
   }
-  #epam requirement
+  #EPAM ONLY. PLEASE COMMENT THESE LINES
   iam_role_permissions_boundary = "arn:aws:iam::${local.account_id}:policy/eo_role_boundary"
-  #remove this block later
+  #END OF THE SECTION
 
   ebs_block_device = [
     {

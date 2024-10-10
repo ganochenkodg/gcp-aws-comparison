@@ -10,3 +10,4 @@ variable "cluster_prefix" {
 variable "snapshot_id" {
   description = "Data volume snapshot id"
 }
+
